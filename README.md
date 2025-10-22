@@ -1,11 +1,11 @@
 # `ERPNext` **Docker** container
-
 This is a simplified version of the official `ERPNext` **Docker** container deployment. I experienced a hard time deploying the application with the originally documented procedure, so decided to create this one.
 
 ## Instruction
 - Clone the repository to your **project path**
 - Ensure your current directory is the project path
 - Make necessary changes to the `.env` file
+	- Ensure the **Docker network subnet** does not conflict with any existing **Docker network**
 - No need to touch the `docker-compose.yml` file
 
 ## **First time** execution (or `reset` an existing instance)
@@ -24,6 +24,12 @@ The default deployment comes with **non SSL** flavor within a private **Docker n
 
 1. **Built in** `Let's Encrypt` certificate: Tweak with the `.env` file and figure it out on your own!
 2. The **easiest** is to use the magical `NginX Proxy Manager` **Docker** instance :) Deploy `NginX Proxy Manager` and simply forward all HTTP requests to this private `ERPNext` instance.
+
+## How to backup?
+Simpler than ever;
+- Stop this `ERPNext` **Docker** instance
+- Copy the entire **project directory**
+- **Restore**: Execute from the new location, **no data lost**
 
 ## Official `ERPNext` **Docker** repository
 - `https://github.com/frappe/frappe_docker`
