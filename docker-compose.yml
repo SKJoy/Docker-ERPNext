@@ -1,0 +1,222 @@
+services:
+
+  backend:
+    image: frappe/erpnext:${ERPNEXT_VERSION}
+    deploy:
+      restart_policy:
+        condition: on-failure
+    volumes:
+      - Site:/home/frappe/frappe-bench/sites
+      - Log:/home/frappe/frappe-bench/logs
+    environment:
+      DB_HOST: db
+      DB_PORT: "3306"
+      MYSQL_ROOT_PASSWORD: admin
+      MARIADB_ROOT_PASSWORD: admin
+
+  configurator:
+    image: frappe/erpnext:${ERPNEXT_VERSION}
+    deploy:
+      restart_policy:
+        condition: none
+    entrypoint:
+      - bash
+      - -c
+    command:
+      - >
+        ls -1 apps > sites/apps.txt;
+        bench set-config -g db_host $$DB_HOST;
+        bench set-config -gp db_port $$DB_PORT;
+        bench set-config -g redis_cache "redis://$$REDIS_CACHE";
+        bench set-config -g redis_queue "redis://$$REDIS_QUEUE";
+        bench set-config -g redis_socketio "redis://$$REDIS_QUEUE";
+        bench set-config -gp socketio_port $$SOCKETIO_PORT;
+    environment:
+      DB_HOST: db
+      DB_PORT: 3306
+      REDIS_CACHE: redis-cache:6379
+      REDIS_QUEUE: redis-queue:6379
+      SOCKETIO_PORT: 9000
+    volumes:
+      - Site:/home/frappe/frappe-bench/sites
+      - Log:/home/frappe/frappe-bench/logs
+
+  db:
+    image: mariadb:10.6
+    healthcheck:
+      test: mysqladmin ping -h localhost --password=admin
+      interval: 1s
+      retries: 20
+    deploy:
+      restart_policy:
+        condition: on-failure
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --skip-character-set-client-handshake
+      - --skip-innodb-read-only-compressed # Temporary fix for MariaDB 10.6
+    environment:
+      MYSQL_ROOT_PASSWORD: admin
+      MARIADB_ROOT_PASSWORD: admin
+    volumes:
+      - ${ERPNEXT_SERVICE_VOLUME_PATH}Database:/var/lib/mysql
+
+  create-site:
+    image: frappe/erpnext:${ERPNEXT_VERSION}
+    depends_on:
+      - db
+    deploy:
+      restart_policy:
+        condition: none
+    volumes:
+      - Site:/home/frappe/frappe-bench/sites
+      - Log:/home/frappe/frappe-bench/logs
+    entrypoint:
+      - bash
+      - -c
+    command:
+      - >
+        wait-for-it -t 120 db:3306;
+        wait-for-it -t 120 redis-cache:6379;
+        wait-for-it -t 120 redis-queue:6379;
+        export start=`date +%s`;
+        until [[ -n `grep -hs ^ sites/common_site_config.json | jq -r ".db_host // empty"` ]] && \
+          [[ -n `grep -hs ^ sites/common_site_config.json | jq -r ".redis_cache // empty"` ]] && \
+          [[ -n `grep -hs ^ sites/common_site_config.json | jq -r ".redis_queue // empty"` ]];
+        do
+          echo "Waiting for sites/common_site_config.json to be created";
+          sleep 5;
+          if (( `date +%s`-start > 120 )); then
+            echo "could not find sites/common_site_config.json with required keys";
+            exit 1
+          fi
+        done;
+        echo "sites/common_site_config.json found";
+        bench new-site --mariadb-user-host-login-scope='%' --admin-password=admin --db-root-username=root --db-root-password=admin --install-app erpnext --set-default frontend;
+
+  redis-queue:
+    image: redis:6.2-alpine
+    deploy:
+      restart_policy:
+        condition: on-failure
+    volumes:
+      - ${ERPNEXT_SERVICE_VOLUME_PATH}Redis/Queue:/data
+
+  redis-cache:
+    image: redis:6.2-alpine
+    deploy:
+      restart_policy:
+        condition: on-failure
+
+  websocket:
+    image: frappe/erpnext:${ERPNEXT_VERSION}
+    depends_on:
+      - redis-queue
+      - redis-cache
+    deploy:
+      restart_policy:
+        condition: on-failure
+    command:
+      - node
+      - /home/frappe/frappe-bench/apps/frappe/socketio.js
+    environment:
+      FRAPPE_REDIS_CACHE: redis://redis-cache:6379
+      FRAPPE_REDIS_QUEUE: redis://redis-queue:6379
+    volumes:
+      - Site:/home/frappe/frappe-bench/sites
+      - Log:/home/frappe/frappe-bench/logs
+
+  frontend:
+    image: frappe/erpnext:${ERPNEXT_VERSION}
+    depends_on:
+      - websocket
+    deploy:
+      restart_policy:
+        condition: on-failure
+    command:
+      - nginx-entrypoint.sh
+    environment:
+      FRAPPE_SITE_NAME_HEADER: ${ERPNEXT_SITE_HEADER}
+      UPSTREAM_REAL_IP_ADDRESS: ${ERPNEXT_REAL_IP}
+      UPSTREAM_REAL_IP_HEADER: ${ERPNEXT_REAL_IP_HEADER}
+      UPSTREAM_REAL_IP_RECURSIVE: ${ERPNEXT_REAL_IP_RECURSIVE}
+      PROXY_READ_TIMEOUT: ${ERPNEXT_PROXY_READ_TIMEOUT}
+      CLIENT_MAX_BODY_SIZE: ${ERPNEXT_CLIENT_MAX_BODY_SIZE}
+      LETSENCRYPT_EMAIL: ${ERPNEXT_LETSENCRYPT_EMAIL}
+      SITES: ${ERPNEXT_SITES}
+      HTTP_PUBLISH_PORT: ${ERPNEXT_HTTP_PUBLISH_PORT}
+      BACKEND: backend:8000
+      SOCKETIO: websocket:9000
+    volumes:
+      - Site:/home/frappe/frappe-bench/sites
+      - Log:/home/frappe/frappe-bench/logs
+    ports:
+      - ${ERPNEXT_IP}:${ERPNEXT_PORT_HTTP}:${ERPNEXT_HTTP_PUBLISH_PORT}
+
+  queue-long:
+    image: frappe/erpnext:${ERPNEXT_VERSION}
+    deploy:
+      restart_policy:
+        condition: on-failure
+    command:
+      - bench
+      - worker
+      - --queue
+      - long,default,short
+    volumes:
+      - Site:/home/frappe/frappe-bench/sites
+      - Log:/home/frappe/frappe-bench/logs
+    environment:
+      FRAPPE_REDIS_CACHE: redis://redis-cache:6379
+      FRAPPE_REDIS_QUEUE: redis://redis-queue:6379
+
+  queue-short:
+    image: frappe/erpnext:${ERPNEXT_VERSION}
+    deploy:
+      restart_policy:
+        condition: on-failure
+    command:
+      - bench
+      - worker
+      - --queue
+      - short,default
+    volumes:
+      - Site:/home/frappe/frappe-bench/sites
+      - Log:/home/frappe/frappe-bench/logs
+    environment:
+      FRAPPE_REDIS_CACHE: redis://redis-cache:6379
+      FRAPPE_REDIS_QUEUE: redis://redis-queue:6379
+
+  scheduler:
+    image: frappe/erpnext:${ERPNEXT_VERSION}
+    deploy:
+      restart_policy:
+        condition: on-failure
+    command:
+      - bench
+      - schedule
+    volumes:
+      - Site:/home/frappe/frappe-bench/sites
+      - Log:/home/frappe/frappe-bench/logs
+
+volumes:
+  Site:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${ERPNEXT_SERVICE_VOLUME_PATH}Site
+  Log:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${ERPNEXT_SERVICE_VOLUME_PATH}Log
+
+networks:
+  default:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: ${DOCKER_NETWORK_SUBNET}
