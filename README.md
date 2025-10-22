@@ -32,5 +32,11 @@ Simpler than ever;
 - **Backup**: Copy the entire **project directory**
 - **Restore**: Execute from the new location, **no data lost**
 
+## Where is the **Volume** data kept?
+All **Volume** data are kept locally in `Volume` folder within the **project path** under seperate folders;
+- ERPNext
+- MySQL
+- Redis
+
 ## Official `ERPNext` **Docker** repository
 - [`ERPNext Docker`](https://github.com/frappe/frappe_docker)
