@@ -59,7 +59,7 @@ services:
       MYSQL_ROOT_PASSWORD: admin
       MARIADB_ROOT_PASSWORD: admin
     volumes:
-      - ${ERPNEXT_SERVICE_VOLUME_PATH}Database:/var/lib/mysql
+      - ${MYSQL_SERVICE_VOLUME_PATH}Data:/var/lib/mysql
 
   create-site:
     image: frappe/erpnext:${ERPNEXT_VERSION}
@@ -100,7 +100,7 @@ services:
       restart_policy:
         condition: on-failure
     volumes:
-      - ${ERPNEXT_SERVICE_VOLUME_PATH}Redis/Queue:/data
+      - ${REDIS_SERVICE_VOLUME_PATH}Queue:/data
 
   redis-cache:
     image: redis:6.2-alpine
