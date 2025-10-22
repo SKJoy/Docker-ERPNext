@@ -14,5 +14,15 @@ This is a simplified version of the official `ERPNext` **Docker** container depl
 ## **Regular** execution
 - Run using the `Start.sh` bash script: `bash Start.sh`
 
+## How to access this `ERPNext` **Docker** instance?
+- Access `ERPNext` from within the private **Docker network**
+- Set `ERPNEXT_IP` **environment** variable in `.env` file to `0.0.0.0` to access it from anywhere (**not recommended** for **internet** exposure)
+
+## SSL: Secure HTTP access
+The default deployment comes with **non SSL** flavor within a private **Docker network**, to be used with a HTTP reverse proxy for access from the internet. There are two ways to expose this ERPNext instance to the internet for public access;
+
+1. **Built in** `Let's Encrypt` certificate: Tweak with the `.env` file and figure it out on your own!
+2. The **easiest** is to use the magical `NginX Proxy Manager` **Docker** instance :) Deploy `NginX Proxy Manager` and simply forward all HTTP requests to this private `ERPNext` instance.
+
 ## Official `ERPNext` **Docker** repository
 - `https://github.com/frappe/frappe_docker`
