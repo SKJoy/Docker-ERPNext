@@ -13,3 +13,6 @@ This is a simplified version of the official `ERPNext` **Docker** container depl
 
 ## **Regular** execution
 - Run using the `Start.sh` bash script: `bash Start.sh`
+
+## Official `ERPNext` **Docker** repository
+- `https://github.com/frappe/frappe_docker`
