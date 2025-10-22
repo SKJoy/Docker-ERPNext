@@ -16,6 +16,7 @@ This is a simplified version of the official `ERPNext` **Docker** container depl
 
 ## How to access this `ERPNext` **Docker** instance?
 - Access `ERPNext` from within the private **Docker network**
+- Default username is `Administrator` and password is `admin`
 - Set `ERPNEXT_IP` **environment** variable in `.env` file to `0.0.0.0` to access it from anywhere (**not recommended** for **internet** exposure)
 
 ## SSL: Secure HTTP access
