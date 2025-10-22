@@ -28,7 +28,7 @@ The default deployment comes with **non SSL** flavor within a private **Docker n
 
 ## How to **backup** & **restore**?
 Simpler than ever;
-- Stop this `ERPNext` **Docker** instance
+- Stop this `ERPNext` **Docker** instance: `docker compose down`
 - **Backup**: Copy the entire **project directory**
 - **Restore**: Execute from the new location, **no data lost**
 
