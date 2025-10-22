@@ -3,7 +3,7 @@ This is a simplified version of the official `ERPNext` **Docker** container depl
 
 ## Instruction
 - Clone the repository to your **project path**
-- Ensure your current directory is the project path
+- Ensure your current directory is the **project path**
 - Make necessary changes to the `.env` file
 	- Check the `DOCKER_NETWORK_PREFIX` **environment variable** to ensure the **Docker network subnet** does not conflict with any existing **Docker network**
 	- Change the `HOST_NAME` **environment variable** to the **domain**/**subdomain** you will be using to access this `ERPNext` **Docker** instance with
@@ -21,7 +21,7 @@ This is a simplified version of the official `ERPNext` **Docker** container depl
 - Set `ERPNEXT_IP` **environment** variable in `.env` file to `0.0.0.0` to access it from anywhere (**not recommended** for **internet** exposure)
 
 ## SSL: Secure HTTP access
-The default deployment comes with **non SSL** flavor within a private **Docker network**, to be used with a HTTP reverse proxy for access from the internet. There are two ways to expose this ERPNext instance to the internet for public access;
+The default deployment comes with **non SSL** flavor within a private **Docker network**, to be used with an **HTTP reverse proxy** for access from the **internet**. There are two ways to expose this `ERPNext` **Docker** instance to the **internet** for **public** access;
 
 1. **Built in** `Let's Encrypt` certificate: Tweak with the `.env` file and figure it out on your own!
 2. The **easiest** is to use the magical [`NginX Proxy Manager`](https://nginxproxymanager.com/) **Docker** instance :) Deploy `NginX Proxy Manager` and simply forward all HTTP requests to this private `ERPNext` instance.
