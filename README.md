@@ -26,10 +26,10 @@ The default deployment comes with **non SSL** flavor within a private **Docker n
 1. **Built in** `Let's Encrypt` certificate: Tweak with the `.env` file and figure it out on your own!
 2. The **easiest** is to use the magical `NginX Proxy Manager` **Docker** instance :) Deploy `NginX Proxy Manager` and simply forward all HTTP requests to this private `ERPNext` instance.
 
-## How to backup?
+## How to **backup** & **restore**?
 Simpler than ever;
 - Stop this `ERPNext` **Docker** instance
-- Copy the entire **project directory**
+- **Backup**: Copy the entire **project directory**
 - **Restore**: Execute from the new location, **no data lost**
 
 ## Official `ERPNext` **Docker** repository
