@@ -5,7 +5,8 @@ This is a simplified version of the official `ERPNext` **Docker** container depl
 - Clone the repository to your **project path**
 - Ensure your current directory is the project path
 - Make necessary changes to the `.env` file
-	- Ensure the **Docker network subnet** does not conflict with any existing **Docker network**
+	- Check the `DOCKER_NETWORK_PREFIX` **environment variable** to ensure the **Docker network subnet** does not conflict with any existing **Docker network**
+	- Change the `HOST_NAME` **environment variable** to the **domain**/**subdomain** you will be using to access this `ERPNext` **Docker** instance with
 - No need to touch the `docker-compose.yml` file
 
 ## **First time** execution (or `reset` an existing instance)
