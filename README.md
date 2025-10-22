@@ -24,7 +24,7 @@ This is a simplified version of the official `ERPNext` **Docker** container depl
 The default deployment comes with **non SSL** flavor within a private **Docker network**, to be used with a HTTP reverse proxy for access from the internet. There are two ways to expose this ERPNext instance to the internet for public access;
 
 1. **Built in** `Let's Encrypt` certificate: Tweak with the `.env` file and figure it out on your own!
-2. The **easiest** is to use the magical `NginX Proxy Manager` **Docker** instance :) Deploy `NginX Proxy Manager` and simply forward all HTTP requests to this private `ERPNext` instance.
+2. The **easiest** is to use the magical [`NginX Proxy Manager`](https://nginxproxymanager.com/) **Docker** instance :) Deploy `NginX Proxy Manager` and simply forward all HTTP requests to this private `ERPNext` instance.
 
 ## How to **backup** & **restore**?
 Simpler than ever;
@@ -33,4 +33,4 @@ Simpler than ever;
 - **Restore**: Execute from the new location, **no data lost**
 
 ## Official `ERPNext` **Docker** repository
-- `https://github.com/frappe/frappe_docker`
+- [`ERPNext Docker`](https://github.com/frappe/frappe_docker)
