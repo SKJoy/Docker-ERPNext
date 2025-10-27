@@ -136,7 +136,7 @@ services:
     command:
       - nginx-entrypoint.sh
     environment:
-      FRAPPE_SITE_NAME_HEADER: ${ERPNEXT_SITE_HEADER}
+      FRAPPE_SITE_NAME_HEADER: "frontend"
       UPSTREAM_REAL_IP_ADDRESS: ${ERPNEXT_REAL_IP}
       UPSTREAM_REAL_IP_HEADER: ${ERPNEXT_REAL_IP_HEADER}
       UPSTREAM_REAL_IP_RECURSIVE: ${ERPNEXT_REAL_IP_RECURSIVE}
@@ -144,14 +144,14 @@ services:
       CLIENT_MAX_BODY_SIZE: ${ERPNEXT_CLIENT_MAX_BODY_SIZE}
       LETSENCRYPT_EMAIL: ${ERPNEXT_LETSENCRYPT_EMAIL}
       SITES: ${ERPNEXT_SITES}
-      HTTP_PUBLISH_PORT: ${ERPNEXT_HTTP_PUBLISH_PORT}
+      HTTP_PUBLISH_PORT: 8080
       BACKEND: backend:8000
       SOCKETIO: websocket:9000
     volumes:
       - Site:/home/frappe/frappe-bench/sites
       - Log:/home/frappe/frappe-bench/logs
     ports:
-      - ${ERPNEXT_IP}:${ERPNEXT_PORT_HTTP}:${ERPNEXT_HTTP_PUBLISH_PORT}
+      - ${ERPNEXT_IP}:${ERPNEXT_PORT_HTTP}:8080
 
   queue-long:
     image: frappe/erpnext:${ERPNEXT_VERSION}
